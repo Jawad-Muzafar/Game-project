@@ -39,7 +39,7 @@ def check_win(grid):
 
 
 def computer_move():
-    # Minimax-based optimal move
+    # Light strategy + randomness so outcomes are not always draws
     grid = st.session_state.grid
     player = st.session_state.player_marker
     computer = st.session_state.computer_marker
@@ -47,59 +47,35 @@ def computer_move():
     def available_moves(g):
         return [i for i, c in enumerate(g) if c not in ('X', 'O')]
 
-    def apply_move(g, idx, mark):
-        ng = g.copy()
-        ng[idx] = mark
-        return ng
-
-    def score_for(winner, depth):
-        if winner == computer:
-            return 10 - depth
-        if winner == player:
-            return depth - 10
-        return 0
-
-    def minimax(g, depth, is_maximizing):
-        winner = check_win(g)
-        if winner is not None:
-            if winner == 'D':
-                return 0
-            return score_for(winner, depth)
-
-        moves = available_moves(g)
-        if is_maximizing:
-            best_score = -999
-            for m in moves:
-                ng = apply_move(g, m, computer)
-                sc = minimax(ng, depth + 1, False)
-                if sc > best_score:
-                    best_score = sc
-            return best_score
-        else:
-            best_score = 999
-            for m in moves:
-                ng = apply_move(g, m, player)
-                sc = minimax(ng, depth + 1, True)
-                if sc < best_score:
-                    best_score = sc
-            return best_score
+    def find_winning_move(mark):
+        for m in available_moves(grid):
+            ng = grid.copy()
+            ng[m] = mark
+            if check_win(ng) == mark:
+                return m
+        return None
 
     moves = available_moves(grid)
     if not moves:
         return
 
-    best_move = None
-    best_score = -999
-    for m in moves:
-        ng = apply_move(grid, m, computer)
-        sc = minimax(ng, 0, False)
-        if sc > best_score:
-            best_score = sc
-            best_move = m
+    # 1) Win if possible
+    winning = find_winning_move(computer)
+    if winning is not None:
+        st.session_state.grid[winning] = computer
+        return
 
-    # place the best move
-    if best_move is not None:
-        st.session_state.grid[best_move] = computer
+    # 2) Block player's immediate win
+    block = find_winning_move(player)
+    if block is not None:
+        st.session_state.grid[block] = computer
+        return
+
+    # 3) Otherwise pick randomly (slight center/corner preference)
+    preferred = [4, 0, 2, 6, 8]
+    preferred_moves = [m for m in preferred if m in moves]
+    candidates = preferred_moves if preferred_moves else moves
+    st.session_state.grid[random.choice(candidates)] = computer
 
 
 # Initialize
