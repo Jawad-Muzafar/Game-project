@@ -72,6 +72,7 @@ def computer_move():
         return
 
     # 3) Otherwise pick randomly (slight center/corner preference)
+    # Index map is 0..8 left-to-right, top-to-bottom: 4=center; 0/2/6/8=corners.
     preferred = [4, 0, 2, 6, 8]
     preferred_moves = [m for m in preferred if m in moves]
     candidates = preferred_moves if preferred_moves else moves
