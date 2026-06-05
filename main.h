@@ -7,5 +7,8 @@ char checkWin();
 void playerMove();
 void computerMove();
 void playGame();
+int chooseDifficulty();
+void resetBoard();
+void showScores();
 
 #endif // MAIN_H

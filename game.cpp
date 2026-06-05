@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(){
-	srand((unsigned)time(nullptr));
+	srand((unsigned)time(NULL));
 	playGame();
 	return 0;
 }
